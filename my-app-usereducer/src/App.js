@@ -1,10 +1,11 @@
 import { GlobalStyle } from './App.styles';
+import Form from './components/Form';
 
 function App() {
   return (
     <>
       <GlobalStyle />
-      <h2>App.js</h2>
+      <Form />
     </>
   );
 }
