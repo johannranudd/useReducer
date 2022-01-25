@@ -1,39 +1,35 @@
 import React, { useReducer, useState } from 'react';
 import { StyledDiv } from './StyledDiv.styles';
 import { data } from '../Data';
-import { type } from '@testing-library/user-event/dist/type';
 
-const reducer = (state, action) => {
+const reduce = (state, action) => {
   if (action.type === 'TESTING') {
-    const newItems = [...state.people, action.payload];
-    console.log(newItems);
+    const newArray = [...state.myArray, action.payload];
     return {
       ...state,
-      people: newItems,
+      myArray: newArray,
       isModalOpen: true,
-      modalContent: 'open',
+      modalContent: 'open modal',
     };
   }
   return state;
 };
 
 const defaultState = {
-  people: [],
+  myArray: [],
   isModalOpen: false,
   modalContent: '',
 };
 
 const Form = () => {
   const [name, setName] = useState('');
-  const [state, dispatch] = useReducer(reducer, defaultState);
+  const [state, dispatch] = useReducer(reduce, defaultState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name) {
-      const newItem = { name, id: new Date().getTime().toString() };
-      //   console.log(newItem);
+      const newItem = { id: new Date().getTime().toString(), name };
       dispatch({ type: 'TESTING', payload: newItem });
-      // console.log(state);
       setName('');
     }
   };
@@ -48,8 +44,9 @@ const Form = () => {
         <button type='submit'>Submit</button>
       </form>
       <ul>
-        {state.people.map((item) => {
-          return <li key={item.id}>{item.name}</li>;
+        {state.myArray.map((item) => {
+          const { id, name } = item;
+          return <li key={id}>{name}</li>;
         })}
       </ul>
     </StyledDiv>
