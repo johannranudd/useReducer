@@ -1,5 +1,9 @@
 import styled from 'styled-components';
 
 export const StyledDiv = styled.div`
-  /* background: red; */
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    width: 250px;
+  }
 `;

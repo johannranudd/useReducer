@@ -12,6 +12,26 @@ const reduce = (state, action) => {
       modalContent: '',
     };
   }
+  if (action.type === 'DELETE_ITEM') {
+    const filterArray = state.myArray.filter((item) => {
+      if (item.id !== action.payload) {
+        return item;
+      }
+    });
+    return {
+      ...state,
+      myArray: filterArray,
+      isModalOpen: true,
+      modalContent: '',
+    };
+  }
+  if (action.type === 'EDIT_ITEM') {
+    const newArray = state.myArray.map((item) => {
+      if (item.id === action.payload) {
+        console.log(item);
+      }
+    });
+  }
   return state;
 };
 
@@ -31,7 +51,17 @@ const Form = () => {
       const newItem = { id: new Date().getTime().toString(), name };
       dispatch({ type: 'ADD_ITEM', payload: newItem });
     }
+    setName('');
   };
+
+  const deleteItem = (id) => {
+    dispatch({ type: 'DELETE_ITEM', payload: id });
+  };
+
+  const editItem = (id) => {
+    dispatch({ type: 'EDIT_ITEM', payload: id });
+  };
+
   return (
     <StyledDiv>
       <form action='' onSubmit={handleSubmit}>
@@ -42,12 +72,16 @@ const Form = () => {
         />
         <button type='submit'>Submit</button>
       </form>
-      <ul>
-        {state.myArray.map((item) => {
-          const { id, name } = item;
-          return <li key={id}>{name}</li>;
-        })}
-      </ul>
+      {state.myArray.map((item) => {
+        const { id, name } = item;
+        return (
+          <div key={id} className='list-item'>
+            <p>{name}</p>
+            <button onClick={() => deleteItem(id)}>delete</button>
+            <button onClick={() => editItem(id)}>edit</button>
+          </div>
+        );
+      })}
     </StyledDiv>
   );
 };
