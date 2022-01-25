@@ -5,9 +5,14 @@ import { type } from '@testing-library/user-event/dist/type';
 
 const reducer = (state, action) => {
   if (action.type === 'TESTING') {
-    // console.log(state);
-    // const newItems = { ...state };
-    return { ...state, people: [], isModalOpen: true, modalContent: 'open' };
+    const newItems = [...state.people, action.payload];
+    console.log(newItems);
+    return {
+      ...state,
+      people: newItems,
+      isModalOpen: true,
+      modalContent: 'open',
+    };
   }
   return state;
 };
@@ -28,7 +33,7 @@ const Form = () => {
       const newItem = { name, id: new Date().getTime().toString() };
       //   console.log(newItem);
       dispatch({ type: 'TESTING', payload: newItem });
-      //   console.log(state);
+      // console.log(state);
       setName('');
     }
   };
@@ -42,7 +47,11 @@ const Form = () => {
         />
         <button type='submit'>Submit</button>
       </form>
-      <ul></ul>
+      <ul>
+        {state.people.map((item) => {
+          return <li key={item.id}>{item.name}</li>;
+        })}
+      </ul>
     </StyledDiv>
   );
 };
