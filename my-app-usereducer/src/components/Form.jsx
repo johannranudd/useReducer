@@ -3,13 +3,13 @@ import { StyledDiv } from './StyledDiv.styles';
 import { data } from '../Data';
 
 const reduce = (state, action) => {
-  if (action.type === 'TESTING') {
-    const newArray = [...state.myArray, action.payload];
+  if (action.type === 'ADD_ITEM') {
+    const newItems = [...state.myArray, action.payload];
     return {
       ...state,
-      myArray: newArray,
+      myArray: newItems,
       isModalOpen: true,
-      modalContent: 'open modal',
+      modalContent: '',
     };
   }
   return state;
@@ -29,8 +29,7 @@ const Form = () => {
     e.preventDefault();
     if (name) {
       const newItem = { id: new Date().getTime().toString(), name };
-      dispatch({ type: 'TESTING', payload: newItem });
-      setName('');
+      dispatch({ type: 'ADD_ITEM', payload: newItem });
     }
   };
   return (
