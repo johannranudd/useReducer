@@ -1,6 +1,7 @@
-import React, { useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { StyledDiv } from './StyledDiv.styles';
 import { data } from '../Data';
+import Modal from './Modal';
 
 const reduce = (state, action) => {
   if (action.type === 'ADD_ITEM') {
@@ -9,7 +10,7 @@ const reduce = (state, action) => {
       ...state,
       myArray: newItems,
       isModalOpen: true,
-      modalContent: '',
+      modalContent: 'Item Added',
     };
   }
   if (action.type === 'DELETE_ITEM') {
@@ -22,15 +23,15 @@ const reduce = (state, action) => {
       ...state,
       myArray: filterArray,
       isModalOpen: true,
-      modalContent: '',
+      modalContent: 'Item Deleted',
     };
   }
   if (action.type === 'EDIT_ITEM') {
-    const newArray = state.myArray.map((item) => {
-      if (item.id === action.payload) {
-        console.log(item);
-      }
-    });
+    // const newArray = state.myArray.map((item) => {
+    //   if (item.id === action.payload) {
+    //     console.log(item);
+    //   }
+    // });
   }
   return state;
 };
@@ -50,8 +51,8 @@ const Form = () => {
     if (name) {
       const newItem = { id: new Date().getTime().toString(), name };
       dispatch({ type: 'ADD_ITEM', payload: newItem });
+      setName('');
     }
-    setName('');
   };
 
   const deleteItem = (id) => {
@@ -64,6 +65,7 @@ const Form = () => {
 
   return (
     <StyledDiv>
+      {state.isModalOpen && <Modal modalContent={state.modalContent} />}
       <form action='' onSubmit={handleSubmit}>
         <input
           type='text'
