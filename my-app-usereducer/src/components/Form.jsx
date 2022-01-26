@@ -27,11 +27,22 @@ const reduce = (state, action) => {
     };
   }
   if (action.type === 'EDIT_ITEM') {
-    // const newArray = state.myArray.map((item) => {
-    //   if (item.id === action.payload) {
-    //     console.log(item);
-    //   }
-    // });
+    // console.log(action.payload);
+    const newArray = state.myArray.map((item) => {
+      if (item.id !== action.payload.id) {
+        return item;
+      }
+      return item;
+    });
+    const newObj = [...state.myArray, newArray];
+    // console.log(newArray);
+    return {
+      ...state,
+      myArray: newObj,
+    };
+  }
+  if (action.type === 'CLOSE_MODAL') {
+    return { ...state, isModalOpen: false };
   }
   return state;
 };
@@ -45,6 +56,8 @@ const defaultState = {
 const Form = () => {
   const [name, setName] = useState('');
   const [state, dispatch] = useReducer(reduce, defaultState);
+  const [editing, setEditing] = useState(false);
+  const [editID, setEditID] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -53,6 +66,19 @@ const Form = () => {
       dispatch({ type: 'ADD_ITEM', payload: newItem });
       setName('');
     }
+    if (name && editing) {
+      const editItem = state.myArray.filter((item) => {
+        if (item.id === editID) {
+          return item;
+        }
+      });
+      dispatch({ type: 'EDIT_ITEM', payload: editItem[0] });
+    }
+    setEditing(false);
+  };
+
+  const closeModal = () => {
+    dispatch({ type: 'CLOSE_MODAL' });
   };
 
   const deleteItem = (id) => {
@@ -60,19 +86,24 @@ const Form = () => {
   };
 
   const editItem = (id) => {
-    dispatch({ type: 'EDIT_ITEM', payload: id });
+    setEditID(id);
+    setEditing(true);
+    const getEditName = state.myArray.filter((item) => item.id === id);
+    setName(getEditName[0].name);
+    // dispatch({ type: 'EDIT_ITEM', payload: id, editItem: editItem[0] });
   };
-
   return (
     <StyledDiv>
-      {state.isModalOpen && <Modal modalContent={state.modalContent} />}
+      {state.isModalOpen && (
+        <Modal modalContent={state.modalContent} closeModal={closeModal} />
+      )}
       <form action='' onSubmit={handleSubmit}>
         <input
           type='text'
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <button type='submit'>Submit</button>
+        <button type='submit'>{editing ? 'Edit' : 'Submit'}</button>
       </form>
       {state.myArray.map((item) => {
         const { id, name } = item;
