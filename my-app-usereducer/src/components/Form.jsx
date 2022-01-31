@@ -9,6 +9,8 @@ const reducer = (state, action) => {
       return {
         ...state,
         myArray: [...state.myArray, action.payload],
+        isModalOpen: true,
+        modalContent: 'Item Added',
       };
     case 'DELETE_ITEM':
       const filteredState = state.myArray.filter(
@@ -17,6 +19,8 @@ const reducer = (state, action) => {
       return {
         ...state,
         myArray: filteredState,
+        isModalOpen: true,
+        modalContent: 'Item Deleted',
       };
     case 'EDIT_ITEM':
       const newArray = state.myArray.map((item) => {
@@ -28,6 +32,14 @@ const reducer = (state, action) => {
       return {
         ...state,
         myArray: newArray,
+        isModalOpen: true,
+        modalContent: 'Item Edited',
+      };
+    case 'CLOSE_MODAL':
+      return {
+        ...state,
+        isModalOpen: false,
+        modalContent: '',
       };
   }
 };
@@ -48,6 +60,7 @@ const Form = () => {
     e.preventDefault();
     if (isEditing && name) {
       dispatch({ type: 'EDIT_ITEM', payload: { id: editID, name: name } });
+      setIsEditing(false);
     }
     if (!isEditing && name) {
       dispatch({ type: 'ADD_ITEM', payload: { id: Date.now(), name: name } });
@@ -60,11 +73,15 @@ const Form = () => {
     setIsEditing(true);
     setEditID(id);
   };
+
+  const closeModal = () => {
+    dispatch({ type: 'CLOSE_MODAL' });
+  };
   return (
     <StyledDiv>
-      {/* {state.isModalOpen && (
+      {state.isModalOpen && (
         <Modal modalContent={state.modalContent} closeModal={closeModal} />
-      )} */}
+      )}
       <form action='' onSubmit={handleSubmit}>
         <input
           type='text'
