@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { StyledDiv } from './StyledDiv.styles';
-import { data } from '../Data';
+// import { data } from '../Data';
 import Modal from './Modal';
 
 const reducer = (state, action) => {
@@ -41,11 +41,18 @@ const reducer = (state, action) => {
         isModalOpen: false,
         modalContent: '',
       };
+    case 'CLEAR_ITEMS':
+      return {
+        ...state,
+        myArray: [],
+      };
   }
 };
 
 const defaultState = {
-  myArray: [],
+  myArray: localStorage.getItem('list')
+    ? JSON.parse(localStorage.getItem('list'))
+    : [],
   isModalOpen: false,
   modalContent: '',
 };
@@ -61,6 +68,7 @@ const Form = () => {
     if (isEditing && name) {
       dispatch({ type: 'EDIT_ITEM', payload: { id: editID, name: name } });
       setIsEditing(false);
+      setName('');
     }
     if (!isEditing && name) {
       dispatch({ type: 'ADD_ITEM', payload: { id: Date.now(), name: name } });
@@ -77,6 +85,10 @@ const Form = () => {
   const closeModal = () => {
     dispatch({ type: 'CLOSE_MODAL' });
   };
+
+  useEffect(() => {
+    localStorage.setItem('list', JSON.stringify(state.myArray));
+  }, [state.myArray]);
   return (
     <StyledDiv>
       {state.isModalOpen && (
@@ -109,6 +121,9 @@ const Form = () => {
           </div>
         );
       })}
+      {state.myArray.length > 0 && (
+        <button onClick={() => dispatch({ type: 'CLEAR_ITEMS' })}>clear</button>
+      )}
     </StyledDiv>
   );
 };
