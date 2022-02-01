@@ -68,11 +68,9 @@ const Form = () => {
     if (isEditing && name) {
       dispatch({ type: 'EDIT_ITEM', payload: { id: editID, name: name } });
       setIsEditing(false);
-      setName('');
     }
     if (!isEditing && name) {
       dispatch({ type: 'ADD_ITEM', payload: { id: Date.now(), name: name } });
-      setName('');
     }
   };
 
@@ -88,6 +86,7 @@ const Form = () => {
 
   useEffect(() => {
     localStorage.setItem('list', JSON.stringify(state.myArray));
+    setName('');
   }, [state.myArray]);
   return (
     <StyledDiv>
