@@ -1,29 +1,32 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState, useContext } from 'react';
 import { StyledDiv } from './StyledDiv.styles';
-// import { data } from '../Data';
+import { data } from '../Data';
 import Modal from './Modal';
+
+const ListContext = React.createContext();
 
 const reducer = (state, action) => {
   switch (action.type) {
     case 'ADD_ITEM':
+      const newList = [...state.myArray, action.payload];
       return {
         ...state,
-        myArray: [...state.myArray, action.payload],
+        myArray: newList,
         isModalOpen: true,
         modalContent: 'Item Added',
       };
     case 'DELETE_ITEM':
-      const filteredState = state.myArray.filter(
-        (item) => item.id !== action.payload.id
+      const filteredArray = state.myArray.filter(
+        (item) => item.id !== action.payload
       );
       return {
         ...state,
-        myArray: filteredState,
+        myArray: filteredArray,
         isModalOpen: true,
         modalContent: 'Item Deleted',
       };
     case 'EDIT_ITEM':
-      const newArray = state.myArray.map((item) => {
+      const editedArray = state.myArray.map((item) => {
         if (item.id === action.payload.id) {
           item = action.payload;
         }
@@ -31,20 +34,9 @@ const reducer = (state, action) => {
       });
       return {
         ...state,
-        myArray: newArray,
+        myArray: editedArray,
         isModalOpen: true,
         modalContent: 'Item Edited',
-      };
-    case 'CLOSE_MODAL':
-      return {
-        ...state,
-        isModalOpen: false,
-        modalContent: '',
-      };
-    case 'CLEAR_ITEMS':
-      return {
-        ...state,
-        myArray: [],
       };
   }
 };
@@ -58,72 +50,92 @@ const defaultState = {
 };
 
 const Form = () => {
-  const [name, setName] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editID, setEditID] = useState(null);
   const [state, dispatch] = useReducer(reducer, defaultState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isEditing && name) {
-      dispatch({ type: 'EDIT_ITEM', payload: { id: editID, name: name } });
-      setIsEditing(false);
+    if (!isEditing && inputValue) {
+      console.log('sub');
+      dispatch({
+        type: 'ADD_ITEM',
+        payload: { id: Date.now(), inputValue },
+      });
     }
-    if (!isEditing && name) {
-      dispatch({ type: 'ADD_ITEM', payload: { id: Date.now(), name: name } });
+    if (isEditing && inputValue) {
+      console.log('editing');
+      dispatch({ type: 'EDIT_ITEM', payload: { id: editID, inputValue } });
     }
   };
 
-  const handleEditing = (name, id) => {
-    setName(name);
+  const handleDelete = (id) => {
+    dispatch({ type: 'DELETE_ITEM', payload: id });
+  };
+
+  const handleEdit = (id, inputValue) => {
+    setInputValue(inputValue);
     setIsEditing(true);
     setEditID(id);
   };
 
-  const closeModal = () => {
-    dispatch({ type: 'CLOSE_MODAL' });
-  };
-
   useEffect(() => {
     localStorage.setItem('list', JSON.stringify(state.myArray));
-    setName('');
+    setInputValue('');
+    setIsEditing(false);
   }, [state.myArray]);
+
   return (
-    <StyledDiv>
-      {state.isModalOpen && (
-        <Modal modalContent={state.modalContent} closeModal={closeModal} />
-      )}
-      <form action='' onSubmit={handleSubmit}>
-        <input
-          type='text'
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <button type='submit'>Submit</button>
-      </form>
+    <ListContext.Provider
+      value={{
+        handleSubmit,
+        inputValue,
+        setInputValue,
+        state,
+        handleDelete,
+        handleEdit,
+      }}
+    >
+      <StyledDiv>
+        <FormInputs />
+        <List />
+      </StyledDiv>
+    </ListContext.Provider>
+  );
+};
+
+const List = () => {
+  const { state, handleDelete, handleEdit } = useContext(ListContext);
+  return (
+    <ul>
       {state.myArray.map((item) => {
-        const { id, name } = item;
+        const { id, inputValue } = item;
         return (
-          <div key={id} className='list-item'>
-            <p>{name}</p>
-            <button
-              onClick={() =>
-                dispatch({
-                  type: 'DELETE_ITEM',
-                  payload: { id: id },
-                })
-              }
-            >
-              delete
-            </button>
-            <button onClick={() => handleEditing(name, id)}>edit</button>
-          </div>
+          <li className='list-item' key={id}>
+            {inputValue}
+            <div className='btn-container'>
+              <button onClick={() => handleDelete(id)}>Delete</button>
+              <button onClick={() => handleEdit(id, inputValue)}>Edit</button>
+            </div>
+          </li>
         );
       })}
-      {state.myArray.length > 0 && (
-        <button onClick={() => dispatch({ type: 'CLEAR_ITEMS' })}>clear</button>
-      )}
-    </StyledDiv>
+    </ul>
+  );
+};
+
+const FormInputs = () => {
+  const { handleSubmit, inputValue, setInputValue } = useContext(ListContext);
+  return (
+    <form action='' onSubmit={handleSubmit}>
+      <input
+        type='text'
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+      <button type='submit'>Submit</button>
+    </form>
   );
 };
 
